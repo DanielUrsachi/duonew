@@ -221,6 +221,33 @@ public class MainClass implements ApplicationListener {
 			if(per<=1000000)per=per/1.5;
 		}
 
+		if((score>i)&&(score!=0)&&(!pauseMen)){
+
+			if((bonus.overlaps(r))||(bonus.overlaps(b))){
+				smile.play();
+
+				bonus.y = h+20;
+				score += 300;
+				i=score+100;
+				bonus.x = MathUtils.random(0,800-64);
+
+
+
+			}
+			if(bonus.y<=0){
+				bonus.y = h+20;
+				i=score+100;
+				bonus.x = MathUtils.random(0,800-64);
+
+			}
+
+			bonus.y -= 100 * Gdx.graphics.getDeltaTime();
+
+
+		}
+		if((score>i)&&(score!=0)){
+			batch.draw(bonusimg, bonus.x, bonus.y);
+		}
 
 
 
@@ -418,7 +445,7 @@ public class MainClass implements ApplicationListener {
 				}
 				if((touch.overlaps(replaybutton))&&(deathscore == 1)){
 					muz.play();
-					
+					bonus.y = h+20;//pentru bonus
 					i = 100;//pentru bonus
 
 					Iterator<Rectangle> iter2 = bombs.iterator();

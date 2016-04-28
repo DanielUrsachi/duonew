@@ -25,6 +25,12 @@ public class MainClass implements ApplicationListener {
 	Texture red;
 	Texture gold;
 	Texture bombimg;
+	Texture menuBg;
+	Texture logoimg;
+	Texture logotextD;
+	Texture logotextU;
+	Texture logotextO;
+	Texture cemetery;
 	Rectangle b;
 	Rectangle r;
 	Rectangle g;
@@ -32,6 +38,8 @@ public class MainClass implements ApplicationListener {
 	Vector3 touchPos;
 	Vector3 touchPos3;
 	Sound babah;
+	Sound duo;
+	Sound smile;
 	Music muz;
 	int death = 0;
 	float h = 480;//inaltimea
@@ -64,12 +72,41 @@ public class MainClass implements ApplicationListener {
 		pauseTexture = new Texture("pause.png");
 		bombimg = new Texture("face.png");
 
-
+		menuBg = new Texture("menuBG.png");
+		pauseTexture = new Texture("pause.png");
+		playTexture = new Texture("play.png");
+		replayTexture = new Texture("resume.png");
+		logoimg = new Texture("logoimg.png");
+		logotextD = new Texture("logoD.png");
+		logotextU = new Texture("logoU.png");
+		logotextO = new Texture("logoO.png");
+		cemetery = new Texture("cemetery.png");
 		pausebutton = new Rectangle();
 		pausebutton.x = w-70;
 		pausebutton.y = h-70;
 		pausebutton.width = 64;
 		pausebutton.height = 64;
+
+
+		playbutton = new Rectangle();
+		playbutton.x = w/2-90;
+		playbutton.y = h/2-90;
+		playbutton.width = 180;
+		playbutton.height = 180;
+
+		replaybutton = new Rectangle();
+		replaybutton.x =w/2+100;
+		replaybutton.y = h/4-50;
+		replaybutton.width = 128;
+		replaybutton.height = 128;
+
+		smile = Gdx.audio.newSound(Gdx.files.internal("smile.wav"));
+		babah = Gdx.audio.newSound(Gdx.files.internal("babah.mp3"));
+		duo = Gdx.audio.newSound(Gdx.files.internal("2duo.mp3"));
+		muz = Gdx.audio.newMusic(Gdx.files.internal("muz.mp3"));
+
+		muz.setLooping(true);
+		muz.play();
 
 
 		b = new Rectangle();
@@ -191,7 +228,14 @@ public class MainClass implements ApplicationListener {
 
 
 
+		scroreName = ""+score;
+		batch.draw(baloon, 5, h-64-10);
+		bitFont.setColor(1.0f,0.65f,0.0f,1.0f);
+		bitFont.getData().setScale(0.5f);
+		bitFont.getRegion().getTexture().setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
 
+		bitFont.getSpaceWidth();
+		bitFont.draw(batch,scroreName,64/2-23/*-(score/1000*10)*/,h-64-20)
 		if(!pauseMen){
 
 			batch.draw(pauseTexture, pausebutton.x, pausebutton.y);
@@ -210,7 +254,70 @@ public class MainClass implements ApplicationListener {
 
 			}
 		}
+		if(pauseMen){
+			muz.pause();
+			batch.draw(menuBg, 0, 0);
+			batch.draw(logoimg,w/2-32,40);
+			batch.draw(logotextD,w/2-100,360);
+			batch.draw(logotextU,w/2-40,360);
+			batch.draw(logotextO,w/2+20,360);
+			if(death != 2)batch.draw(playTexture, playbutton.x, playbutton.y);
+			if(death == 2){
+				batch.draw(cemetery,200,h/2-30);
+				scroreName = "Your Score: "+score;
+				bitFont.setColor(0.45f, 0.29f, 0.14f,0.75f);
+				bitFont.getData().setScale(0.55f);
 
+				bitFont.getRegion().getTexture().setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
+				bitFont.draw(batch,scroreName,w/2-256,h/2-60);//score in cazul in care am pierdut
+			}
+			if(deathscore == 1)batch.draw(replayTexture, replaybutton.x, replaybutton.y);
+			if(Gdx.input.isTouched()){
+				camera.unproject(touchPos3.set(Gdx.input.getX(),Gdx.input.getY(),0));
+
+				touch.x =touchPos3.x-8;
+				touch.y = touchPos3.y-8;
+				touch.width = 16;
+				touch.height = 16;
+				if((touch.overlaps(playbutton))&&(death != 2)){
+					muz.play();
+					pauseMen = false;
+				}
+				if((touch.overlaps(replaybutton))&&(deathscore == 1)){
+					muz.play();
+					bonus.y = h+20;//pentru bonus
+					i = 100;//pentru bonus
+
+					Iterator<Rectangle> iter2 = bombs.iterator();
+					while (iter2.hasNext()){
+						Rectangle bomb = iter2.next();
+
+
+						iter2.remove();
+
+					}
+					v = 500;
+					v2 = 170;
+					per = 2000000000;
+
+					pauseMen = false;
+
+
+					score = 0;
+					death = 2;
+					//
+
+
+					//
+
+					//create();
+					//iter.remove();
+
+				}
+
+
+			}
+		}
 
 
 

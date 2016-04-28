@@ -196,8 +196,8 @@ public class MainClass implements ApplicationListener {
 		if(score!=0){deathscore = 1;}
 		//marirea vitezei bombelor la scor
 		if((score%200==0)&&(score!=0)){
-			v2+=50;
-			if(per<=1000000)per=per/1.5;
+			v2+=30;
+			if(per>=1000000)per=per/1.5;
 		}
 		//bonus
 		if((score>i)&&(score!=0)&&(!pauseMen)){

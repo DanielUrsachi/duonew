@@ -10,6 +10,8 @@ public class DesktopLauncher {
 		config.title = "Duo";
 		config.width = 800;
 		config.height = 480;
+
 		new LwjglApplication(new MainClass(), config);
+
 	}
 }

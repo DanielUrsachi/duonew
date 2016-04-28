@@ -18,6 +18,7 @@ import com.badlogic.gdx.utils.TimeUtils;
 
 import java.util.Iterator;
 
+
 public class MainClass implements ApplicationListener {
 	OrthographicCamera camera;
 	SpriteBatch batch;
@@ -25,23 +26,30 @@ public class MainClass implements ApplicationListener {
 	Texture red;
 	Texture gold;
 	Texture bombimg;
+	Texture baloon;
 	Texture menuBg;
+	Texture bonusimg;
 	Texture logoimg;
 	Texture logotextD;
 	Texture logotextU;
 	Texture logotextO;
 	Texture cemetery;
-	Rectangle b;
-	Rectangle r;
-	Rectangle g;
-	Texture bonusimg;
-	Vector3 touchPos;
-	Vector3 touchPos3;
 	Sound babah;
 	Sound duo;
 	Sound smile;
 	Music muz;
-	int death = 0;
+	Rectangle b;
+	Rectangle r;
+	Rectangle g;
+	Vector3 touchPos;
+	Vector3 touchPos2;
+	Vector3 touchPos3;
+	Array<Rectangle> bombs;
+
+
+
+	long lastbomb;
+
 	float h = 480;//inaltimea
 	float w = 800;//latimea
 	float lat = 64;//latimea majoritatilor texturilor
@@ -49,34 +57,42 @@ public class MainClass implements ApplicationListener {
 	float v2 = 170;//viteza players
 	double per = 1000000000;
 	int score = 0;
+	boolean pauseMen;
+	int death = 0;
+	int deathscore = 0;
 	String scroreName;
 	BitmapFont bitFont;
-	boolean pauseMen;
 	Rectangle pausebutton,playbutton,replaybutton,touch,bonus;
 	Texture pauseTexture,playTexture,replayTexture;
-	Array<Rectangle> bombs;
-	int deathscore = 0;
 
-	long lastbomb;
+	int i = 0;
+
+
+
+
+
 
 	@Override
 	public void create () {
+		death = 0;
+
+		deathscore = 0;
 		camera = new OrthographicCamera();
 		camera.setToOrtho(false,800,480);
-		death = 0;
-		deathscore = 0;
+
+
 		batch = new SpriteBatch();
 		blue = new Texture("blue.png");
+		bombimg = new Texture("face.png");
+		baloon = new Texture("baloons.png");
 		red = new Texture("red.png");
 		gold = new Texture("gold.png");
-		pauseTexture = new Texture("pause.png");
-		bombimg = new Texture("face.png");
-
 		menuBg = new Texture("menuBG.png");
 		pauseTexture = new Texture("pause.png");
 		playTexture = new Texture("play.png");
 		replayTexture = new Texture("resume.png");
-		logoimg = new Texture("logoimg.png");
+		bonusimg = new Texture("bonusimg.png");
+        logoimg = new Texture("logoimg.png");
 		logotextD = new Texture("logoD.png");
 		logotextU = new Texture("logoU.png");
 		logotextO = new Texture("logoO.png");
@@ -86,6 +102,16 @@ public class MainClass implements ApplicationListener {
 		pausebutton.y = h-70;
 		pausebutton.width = 64;
 		pausebutton.height = 64;
+
+		smile = Gdx.audio.newSound(Gdx.files.internal("smile.wav"));
+		babah = Gdx.audio.newSound(Gdx.files.internal("babah.mp3"));
+		duo = Gdx.audio.newSound(Gdx.files.internal("2duo.mp3"));
+		muz = Gdx.audio.newMusic(Gdx.files.internal("muz.mp3"));
+
+		muz.setLooping(true);
+		muz.play();
+
+
 
 
 		playbutton = new Rectangle();
@@ -100,13 +126,22 @@ public class MainClass implements ApplicationListener {
 		replaybutton.width = 128;
 		replaybutton.height = 128;
 
-		smile = Gdx.audio.newSound(Gdx.files.internal("smile.wav"));
-		babah = Gdx.audio.newSound(Gdx.files.internal("babah.mp3"));
-		duo = Gdx.audio.newSound(Gdx.files.internal("2duo.mp3"));
-		muz = Gdx.audio.newMusic(Gdx.files.internal("muz.mp3"));
+		bonus= new Rectangle();
+		bonus.x = MathUtils.random(0,800-64);
+		bonus.y = h;
+		bonus.width = 64;
+		bonus.height = 64;
+		i = 100;
 
-		muz.setLooping(true);
-		muz.play();
+
+
+		//spriteplaybutton = new Sprite(buttonTexture,200,200,380,380);
+		//spritepausebutton = new Sprite(buttonTexture,100,0,64,64);
+		//spriteexitbutton = new Sprite(buttonTexture,200,0,64,64);
+
+		//spriteplaybutton.setPosition(200,200);
+		//pausebutton = new Rectangle(20,20,64,64);
+		touch = new Rectangle();
 
 
 		b = new Rectangle();
@@ -121,21 +156,36 @@ public class MainClass implements ApplicationListener {
 		r.width = lat;
 		r.height = 16;
 
-		touchPos = new Vector3();
 
+		g = new Rectangle();
+		g.x = w/2-lat;
+		g.y = 30;
+		g.width = lat*2;
+		g.height = 16;
+
+		touchPos = new Vector3();
+		touchPos2 = new Vector3();
 		touchPos3 = new Vector3();
 
 		v = 500;
-		muz.setLooping(true);
-		muz.play();
+		v2 = 170;
+		per = 2000000000;
+
+
+		//it = 0;
 
 		score = 0;
 		scroreName = "0";
 		bitFont = new BitmapFont(Gdx.files.internal("font.fnt"), Gdx.files.internal("font.png"), false);;
 
+
 		pauseMen = true;
+
 		bombs = new Array<Rectangle>();
 		bombspawn();
+
+
+
 
 	}
 
@@ -143,6 +193,7 @@ public class MainClass implements ApplicationListener {
 	public void resize(int width, int height) {
 
 	}
+
 
 	private void bombspawn(){
 		Rectangle raindrop = new Rectangle();
@@ -162,17 +213,7 @@ public class MainClass implements ApplicationListener {
 		batch.setProjectionMatrix(camera.combined);
 
 
-
 		batch.begin();
-		batch.draw(blue, b.x, b.y);
-		batch.draw(red, r.x,r.y);
-
-
-		for(Rectangle bomb:bombs){
-			batch.draw(bombimg,bomb.x,bomb.y);
-		}
-
-		if((TimeUtils.nanoTime()-lastbomb>per)&&(!pauseMen))bombspawn();
 
 		if(score!=0){deathscore = 1;}
 		if((score%200==0)&&(score!=0)){
@@ -180,6 +221,16 @@ public class MainClass implements ApplicationListener {
 			if(per<=1000000)per=per/1.5;
 		}
 
+
+
+
+
+//bombe Iterator
+		for(Rectangle bomb:bombs){
+			batch.draw(bombimg,bomb.x,bomb.y);
+		}
+
+		if((TimeUtils.nanoTime()-lastbomb>per)&&(!pauseMen))bombspawn();
 
 		Iterator<Rectangle> iter = bombs.iterator();
 		while ((iter.hasNext())&&(pauseMen==false)){
@@ -193,41 +244,118 @@ public class MainClass implements ApplicationListener {
 				pauseMen=true;
 				death = 2;
 				///death = true;
-
+				
 			}
 		};
 
-
-		if ((Gdx.input.isKeyPressed(Input.Keys.LEFT))&&(!pauseMen)) b.x -= v * Gdx.graphics.getDeltaTime();
-		if ((!Gdx.input.isKeyPressed(Input.Keys.LEFT))&&(!pauseMen)) b.x += v * Gdx.graphics.getDeltaTime();
-
-
-		if (b.x < 0) b.x = 0;
-		if (b.x > w / 2 - 64) b.x = w / 2 - 64;
-
-		//red
-
-		if ((Gdx.input.isKeyPressed(Input.Keys.RIGHT))&&(!pauseMen)) r.x += v * Gdx.graphics.getDeltaTime();
-		if ((!Gdx.input.isKeyPressed(Input.Keys.RIGHT))&&(!pauseMen)) r.x -= v * Gdx.graphics.getDeltaTime();
-
-		if (r.x < w / 2) r.x = w / 2;
-		if (r.x > w - lat) r.x = w - lat;
+//bonus Iterator
 
 
 
+		batch.draw(blue, b.x, b.y);
+		batch.draw(red, r.x,r.y);
 
 
 
+/*
+		if(Gdx.input.isTouched()){
+			for(int i=0; i<2; i++){
+
+				if(Gdx.input.isTouched(i)){
+
+					//touchPos.set(Gdx.input.getX(), Gdx.input.getY(), 0);
+					camera.unproject(touchPos.set(Gdx.input.getX(i),Gdx.input.getY(i),0));
+					if(touchPos.x<w/2){
+						b.x -= v * Gdx.graphics.getDeltaTime()*2;
+
+					}
+					else{
+						r.x += v * Gdx.graphics.getDeltaTime()*2;
+
+					}
+				}}}
+
+*/
+
+
+		if((Gdx.input.isTouched())&&(!pauseMen)){
+			if((Gdx.input.isTouched(0))&&(!Gdx.input.isTouched(1))){
+				camera.unproject(touchPos.set(Gdx.input.getX(0),Gdx.input.getY(0),0));
+				if(touchPos.x<w/2){
+					b.x -= v * Gdx.graphics.getDeltaTime()*2;
+
+				}
+				if(touchPos.x>w/2){
+					r.x += v * Gdx.graphics.getDeltaTime()*2;
+
+				}
+
+
+			}
+			if((Gdx.input.isTouched(1))&&(!Gdx.input.isTouched(0))){
+				camera.unproject(touchPos.set(Gdx.input.getX(1),Gdx.input.getY(1),0));
+				if(touchPos.x<w/2){
+					b.x -= v * Gdx.graphics.getDeltaTime()*2;
+
+				}
+				if(touchPos.x>w/2){
+					r.x += v * Gdx.graphics.getDeltaTime()*2;
+
+				}
+
+
+			}
+			if((Gdx.input.isTouched(1))&&(Gdx.input.isTouched(0))){
+				camera.unproject(touchPos.set(Gdx.input.getX(0),Gdx.input.getY(0),0));
+				camera.unproject(touchPos2.set(Gdx.input.getX(1),Gdx.input.getY(1),0));
+				if((touchPos.x<w/2)&&(touchPos2.x<w/2)){
+					b.x -= v * Gdx.graphics.getDeltaTime()*2;
+
+				}
+				if((touchPos.x>w/2)&&(touchPos2.x>w/2)){
+					r.x += v * Gdx.graphics.getDeltaTime()*2;
+
+				}
+				if(((touchPos.x<w/2)&&(touchPos2.x>w/2))||((touchPos.x>w/2)&&(touchPos2.x<w/2))){
+					b.x -= v * Gdx.graphics.getDeltaTime()*2;
+					r.x += v * Gdx.graphics.getDeltaTime()*2;
+
+				}
+
+
+			}
+		}
+			//blue
+		//if(!Gdx.input.isTouched()) {
+			if ((Gdx.input.isKeyPressed(Input.Keys.LEFT))&&(!pauseMen)) b.x -= v * Gdx.graphics.getDeltaTime();
+			if ((!Gdx.input.isKeyPressed(Input.Keys.LEFT))&&(!pauseMen)) b.x += v * Gdx.graphics.getDeltaTime();
+
+
+			if (b.x < 0) b.x = 0;
+			if (b.x > w / 2 - 64) b.x = w / 2 - 64;
+
+			//red
+
+			if ((Gdx.input.isKeyPressed(Input.Keys.RIGHT))&&(!pauseMen)) r.x += v * Gdx.graphics.getDeltaTime();
+			if ((!Gdx.input.isKeyPressed(Input.Keys.RIGHT))&&(!pauseMen)) r.x -= v * Gdx.graphics.getDeltaTime();
+
+			if (r.x < w / 2) r.x = w / 2;
+			if (r.x > w - lat) r.x = w - lat;
+		//}
+
+
+		if(((b.x == w/2-64)&&(r.x == w/2))&&(!pauseMen)){
+
+			batch.draw(gold, g.x,g.y);
+			duo.play();
+			duo.loop(0);
+			score++;
+
+			//it = it+10;
 
 
 
-
-
-
-
-
-
-
+		}
 		scroreName = ""+score;
 		batch.draw(baloon, 5, h-64-10);
 		bitFont.setColor(1.0f,0.65f,0.0f,1.0f);
@@ -235,7 +363,10 @@ public class MainClass implements ApplicationListener {
 		bitFont.getRegion().getTexture().setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
 
 		bitFont.getSpaceWidth();
-		bitFont.draw(batch,scroreName,64/2-23/*-(score/1000*10)*/,h-64-20)
+		bitFont.draw(batch,scroreName,64/2-23/*-(score/1000*10)*/,h-64-20);
+
+
+		//menu
 		if(!pauseMen){
 
 			batch.draw(pauseTexture, pausebutton.x, pausebutton.y);
@@ -254,6 +385,8 @@ public class MainClass implements ApplicationListener {
 
 			}
 		}
+
+		
 		if(pauseMen){
 			muz.pause();
 			batch.draw(menuBg, 0, 0);
@@ -285,7 +418,7 @@ public class MainClass implements ApplicationListener {
 				}
 				if((touch.overlaps(replaybutton))&&(deathscore == 1)){
 					muz.play();
-					bonus.y = h+20;//pentru bonus
+					
 					i = 100;//pentru bonus
 
 					Iterator<Rectangle> iter2 = bombs.iterator();
@@ -321,9 +454,8 @@ public class MainClass implements ApplicationListener {
 
 
 
-
-
 		batch.end();
+
 	}
 
 	@Override
@@ -333,6 +465,7 @@ public class MainClass implements ApplicationListener {
 
 	@Override
 	public void resume() {
+
 
 	}
 

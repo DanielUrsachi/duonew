@@ -1,6 +1,5 @@
 package com.mygdx.game;
 
-import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
@@ -20,19 +19,34 @@ public class MainClass implements ApplicationListener {
 	Rectangle r;
 	Rectangle g;
 	Vector3 touchPos;
+	Vector3 touchPos3;
+	int death = 0;
 	float h = 480;//inaltimea
 	float w = 800;//latimea
 	float lat = 64;//latimea majoritatilor texturilor
 	float v = 300;//viteza bombs
-	
+	boolean pauseMen;
+	Rectangle pausebutton,playbutton,replaybutton,touch,bonus;
+	Texture pauseTexture,playTexture,replayTexture;
+
 	@Override
 	public void create () {
 		camera = new OrthographicCamera();
 		camera.setToOrtho(false,800,480);
+		death = 0;
 		batch = new SpriteBatch();
 		blue = new Texture("blue.png");
 		red = new Texture("red.png");
 		gold = new Texture("gold.png");
+		pauseTexture = new Texture("pause.png");
+
+
+		pausebutton = new Rectangle();
+		pausebutton.x = w-70;
+		pausebutton.y = h-70;
+		pausebutton.width = 64;
+		pausebutton.height = 64;
+
 
 		b = new Rectangle();
 		b.x = w/2-lat;
@@ -48,7 +62,12 @@ public class MainClass implements ApplicationListener {
 
 		touchPos = new Vector3();
 
+		touchPos3 = new Vector3();
+
 		v = 500;
+
+		pauseMen = true;
+
 	}
 
 	@Override
@@ -68,12 +87,53 @@ public class MainClass implements ApplicationListener {
 		batch.draw(blue, b.x, b.y);
 		batch.draw(red, r.x,r.y);
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+		if(!pauseMen){
+
+			batch.draw(pauseTexture, pausebutton.x, pausebutton.y);
+			if(Gdx.input.isTouched()){
+				camera.unproject(touchPos3.set(Gdx.input.getX(),Gdx.input.getY(),0));
+
+				touch.x =touchPos3.x-8;
+				touch.y = touchPos3.y-8;
+				touch.width = 16;
+				touch.height = 16;
+				if(touch.overlaps(pausebutton)){
+					pauseMen = true;
+					death = 0;
+				}
+
+
+			}
+		}
+
+
+
+
+
+
 		batch.end();
 	}
 
 	@Override
 	public void pause() {
-
+		pauseMen=true;
 	}
 
 	@Override
